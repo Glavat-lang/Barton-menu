@@ -59,12 +59,18 @@ document.getElementById('menu').innerHTML=groups.map(([name,list])=>{
 const sections=list.map(c=>{const arr=visible.filter(x=>x.category===c);return arr.length?`<section class="section" id="${slug(c)}"><div class="sectionhead"><div><h2>${esc(c)}</h2><p>${arr.length} ${plural(arr.length)}</p></div></div><div class="grid">${arr.map(card).join('')}</div></section>`:''}).join('');
 return sections?`<div class="menu-group"><h2 class="menu-group-title">${name}</h2>${sections}</div>`:'';
 }).join('')||'<div class="empty">Ничего не найдено. Попробуй изменить запрос.</div>';
-document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{
-active=b.dataset.cat;
+document.getElementById('chips').onclick=e=>{
+const b=e.target.closest('[data-cat]');
+if(!b)return;
+e.preventDefault();
+active=b.getAttribute('data-cat');
 const target=document.getElementById(slug(active));
-if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
 document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x===b));
-});
+if(target){
+const top=target.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop)-110;
+try{window.scrollTo({top:top,behavior:'smooth'});}catch(err){window.scrollTo(0,top);}
+}
+};
 }
 function card(x){return `<article class="item"><div class="itemtop"><h3>${esc(x.name)} ${x.tag?`<span class="tag">${esc(x.tag)}</span>`:''}</h3><div class="price">${money(x.price)}</div></div><div class="desc">${esc(x.desc||'')}</div><div class="meta"><span>${esc(x.size||'')}</span><span>БАРИТОН</span></div></article>`}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function slug(s){return 'c'+btoa(unescape(encodeURIComponent(s))).replace(/[^a-z0-9]/gi,'').slice(0,20)}function plural(n){return n%10===1&&n%100!==11?'позиция':n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?'позиции':'позиций'}
